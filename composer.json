@@ -1,0 +1,31 @@
+{
+    "name": "dfm/bagisto-shipping",
+    "description": "Bagisto Shipping Package",
+    "type": "library",
+    "require": {
+        "laravel/framework": "^6.0",
+        "maatwebsite/excel": "3.1.18"
+    },
+    "require-dev": {},
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thien",
+            "email": "thienhm@dfm-engineering.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "DFM\\Shipping\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "DFM\\Shipping\\Providers\\ShippingServiceProvider"
+            ],
+            "aliases": {}
+        }
+    }
+}
