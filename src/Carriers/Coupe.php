@@ -34,31 +34,36 @@ class Coupe extends AbstractShipping
         $object->method_description = $this->getConfigData('description');
         $object->price = 0;
         $object->base_price = 0;
-        $weightTotal = 0;
 
         if ($this->getConfigData('type') == 'per_unit') {
+            if (($countryCode = request()->get('billing')['country']) != 'FR') {
+                return false;
+            }
+
+            if (! ($stateCode = request()->get('billing')['state'])) {
+                return false;
+            }
+
+            if (! ($state = CountryState::where([['country_code', $countryCode], ['code', $stateCode]])->first())) {
+                return false;
+            }
+
+            $weightTotal = 0;
             foreach ($cart->items as $item) {
                 if ($item->product->getTypeInstance()->isStockable()) {
                     $weightTotal += $item->product->weight;
                 }
             }
 
-            if ($weightTotal <= 100) {
-                if ($stateCode = request()->get('billing')['state']) {
-                    $state = CountryState::where([
-                        ['country_code', 'FR'],
-                        ['code', $stateCode],
-                    ])->first();
-                    $coupePrice = CoupePrice::where([
-                        ['price', '>=', $weightTotal],
-                        ['state_id', $state->id],
-                    ])->orderBy('price')->first();
-
-                    if ($coupePrice) {
-                        $object->price = $object->base_price = $coupePrice->price;
-                    }
-                }
+            if ($weightTotal > 100) {
+                return false;
             }
+
+            if (! ($coupePrice = CoupePrice::where([['price', '>=', $weightTotal], ['state_id', $state->id]])->orderBy('price')->first())) {
+                return false;
+            }
+
+            $object->price = $object->base_price = $coupePrice->price;
         }
 
         return $object;
