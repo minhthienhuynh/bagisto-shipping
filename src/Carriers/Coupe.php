@@ -17,6 +17,9 @@ class Coupe extends AbstractShipping
      */
     protected $code = 'coupe';
 
+    /**
+     * @return bool|CartShippingRate
+     */
     public function calculate()
     {
         if (! $this->isAvailable()) {
@@ -55,11 +58,11 @@ class Coupe extends AbstractShipping
                 }
             }
 
-            if ($weightTotal > 100) {
+            if ($weightTotal < 10 || $weightTotal > 100) {
                 return false;
             }
 
-            if (! ($coupePrice = CoupePrice::where([['price', '>=', $weightTotal], ['state_id', $state->id]])->orderBy('price')->first())) {
+            if (! ($coupePrice = CoupePrice::where([['weight', '>=', $weightTotal], ['state_id', $state->id]])->orderBy('price')->first())) {
                 return false;
             }
 

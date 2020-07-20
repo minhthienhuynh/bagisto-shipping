@@ -3,7 +3,8 @@
 return [
     'admin' => [
         'system' => [
-            'coupe-shipping' => 'Coupe Shipping'
+            'coupe-shipping' => 'Coupe Shipping',
+            'leleu-shipping' => 'Leleu Shipping',
         ]
     ]
 ];

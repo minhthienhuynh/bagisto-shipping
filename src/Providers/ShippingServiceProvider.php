@@ -2,7 +2,7 @@
 
 namespace DFM\Shipping\Providers;
 
-use DFM\Shipping\Console\Commands\ImportCoupePrices;
+use DFM\Shipping\Console\Commands\ImportPrices;
 use Illuminate\Support\ServiceProvider;
 
 class ShippingServiceProvider extends ServiceProvider
@@ -35,7 +35,7 @@ class ShippingServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ImportCoupePrices::class,
+                ImportPrices::class,
             ]);
         }
 
