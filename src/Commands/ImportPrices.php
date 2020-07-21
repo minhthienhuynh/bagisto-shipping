@@ -41,36 +41,45 @@ class ImportPrices extends Command
      */
     public function handle()
     {
-        $this->info('Importing...');
-
-        if (! ($carrier = $this->argument('carrier'))) {
-            $this->error("Carrier {$carrier} doesn't match!");
+        if (! in_array($carrier = $this->argument('carrier'), $carriers = ['coupe', 'leleu'])) {
+            $this->error('The carrier must be a ' . implode(' or ', $carriers) . '.');
             return ;
         }
 
         switch ($carrier) {
             case 'coupe':
-                $filePath = public_path($this->argument('path') ?? '/imports/coupe.xlsx');
-
-                if (! File::exists($filePath)) {
-                    $this->error("Path {$filePath} doesn't exists!");
-                    return ;
-                }
-
-                Excel::import(new CoupePricesImport(), $filePath);
+                $defaultPath = '/imports/coupe.xlsx';
+                $importClass = new CoupePricesImport();
                 break;
             case 'leleu':
-                $filePath = public_path($this->argument('path') ?? '/imports/leleu.xls');
-
-                if (! File::exists($filePath)) {
-                    $this->error("Path {$filePath} doesn't exists!");
-                    return ;
-                }
-
-                Excel::import(new LeleuPricesImport(), $filePath);
+                $defaultPath = '/imports/leleu.xls';
+                $importClass = new LeleuPricesImport();
                 break;
+            default:
+                $defaultPath = '';
+                $importClass = null;
         }
 
-        $this->info('Done.');
+        if (! ($filePath = $this->argument('path'))) {
+            $filePath = $this->ask('Path', $defaultPath);
+        }
+
+        $filePath = public_path($filePath);
+        if (! File::exists($filePath)) {
+            $this->error("Path '{$filePath}' doesn't exists!");
+            return ;
+        }
+
+        $this->info("\n Importing...");
+
+        Excel::import($importClass, $filePath);
+
+        $this->info(" Done.\n");
+    }
+
+    public function error($string, $verbosity = null)
+    {
+        echo parent::error("\n\n  {$string}\n", $verbosity);
+        echo PHP_EOL;
     }
 }

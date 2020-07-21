@@ -38,19 +38,16 @@ class LeleuPricesImport implements ToCollection
                 if (($countryCode = $row[0]) == 'F') {
                     $stateCode = ltrim($row[1], '0');
 
-                    if ($state = CountryState::where([
-                        ['country_code', 'FR'],
-                        ['code', $stateCode]
-                    ])->first()) {
+                    if ($state = CountryState::where([['country_code', 'FR'], ['code', $stateCode]])->first()) {
                         $data = [
-                            'weight'   => (int) $value,
+                            'volume'   => (int) $value,
                             'price'    => (double) $row[$key],
                             'state_id' => (int) $state->id,
                         ];
                     }
                 } else {
                     $data = [
-                        'weight'   => (int) $value,
+                        'volume'   => (int) $value,
                         'price'    => (double) $row[$key],
                         'state_id' => null,
                     ];

@@ -4,9 +4,8 @@ return [
     'coupe' => [
         'code'        => 'coupe',
         'title'       => 'Coupe',
-        'description' => 'COUPE Shipping',
+        'description' => 'Coupe Shipping',
         'active'      => true,
-        'type'        => 'per_unit',
         'class'       => 'DFM\Shipping\Carriers\Coupe',
     ],
 
@@ -15,7 +14,6 @@ return [
         'title'       => 'Leleu',
         'description' => 'Leleu Shipping',
         'active'      => true,
-        'type'        => 'per_order',
         'class'       => 'DFM\Shipping\Carriers\Leleu',
     ],
 ];

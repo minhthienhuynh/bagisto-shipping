@@ -39,38 +39,25 @@ class Leleu extends AbstractShipping
         $object->price = 0;
         $object->base_price = 0;
 
-        $weightTotal = 0;
-        foreach ($cart->items as $item) {
-            if ($item->product->getTypeInstance()->isStockable()) {
-                $weightTotal += $item->product->weight;
-            }
-        }
-
-        if ($weightTotal <= 100) {
+        if ($this->getCartWeight($cart) <= 100) {
             return false;
         }
 
-        if ($this->getConfigData('type') == 'per_order') {
-            $cartVolume = $this->getCartVolume($cart);
+        $cartVolume = $this->getCartVolume($cart);
 
-            if (($countryCode = request()->get('billing')['country']) == 'FR') {
-                if (! ($stateCode = request()->get('billing')['state'])) {
-                    return false;
-                }
-
-                if (! ($state = CountryState::where([['country_code', $countryCode], ['code', $stateCode]])->first())) {
-                    return false;
-                }
-
-                if (! ($leleuPrice = LeleuPrice::where([['volume', '>=', $cartVolume], ['state_id', $state->id]])->orderBy('price')->first())) {
-                    return false;
-                }
-            } elseif (! ($leleuPrice = LeleuPrice::where([['volume', '>=', $cartVolume], ['state_id', null]])->orderBy('price')->first())) {
+        if (($countryCode = request()->get('billing')['country']) == 'FR' && ($stateCode = request()->get('billing')['state'])) {
+            if (! ($state = CountryState::where([['country_code', $countryCode], ['code', $stateCode]])->first())) {
                 return false;
             }
 
-            $object->price = $object->base_price = $leleuPrice->price;
+            if (! ($leleuPrice = LeleuPrice::where([['volume', '>=', $cartVolume], ['state_id', $state->id]])->orderBy('price')->first())) {
+                return false;
+            }
+        } elseif (! ($leleuPrice = LeleuPrice::where([['volume', '>=', $cartVolume], ['state_id', null]])->orderBy('price')->first())) {
+            return false;
         }
+
+        $object->price = $object->base_price = $leleuPrice->price;
 
         return $object;
     }
@@ -82,5 +69,22 @@ class Leleu extends AbstractShipping
     private function getCartVolume(Cart $cart)
     {
         return rand(1, 6);
+    }
+
+    /**
+     * @param  Cart  $cart
+     * @return int
+     */
+    private function getCartWeight(Cart $cart)
+    {
+        $weight = 0;
+
+        foreach ($cart->items as $item) {
+            if ($item->product->getTypeInstance()->isStockable()) {
+                $weight += $item->product->weight;
+            }
+        }
+
+        return $weight;
     }
 }
